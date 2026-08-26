@@ -1,0 +1,8 @@
+$ c04-broken-ub
+
+cases/04-overflow-removes-check/broken.cpp:38:13: runtime error: signed integer overflow: 2000000000 + 2000000000 cannot be represented in type 'int'
+buffer size: 1024 bytes
+fits(0, 16)                   -> yes
+fits(2000000000, 2000000000) -> no
+
+[exit status: 0]

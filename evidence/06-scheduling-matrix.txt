@@ -1,0 +1,12 @@
+Does SCHED_FIFO work? One row per container configuration.
+
+docker flags                       RLIMIT_RTPRIO    SCHED_FIFO
+---------------------------------- ---------------- -------------
+--cap-add=SYS_NICE --ulimit rtprio soft 99, hard 99 3 of 3 threads
+--cap-drop=ALL     --ulimit rtprio soft 99, hard 99 3 of 3 threads
+--cap-add=SYS_NICE                 soft 0, hard 0   3 of 3 threads
+--cap-drop=ALL                     soft 0, hard 0   0 of 3 threads
+(docker defaults)                  soft 0, hard 0   0 of 3 threads
+
+Either CAP_SYS_NICE or a non-zero RLIMIT_RTPRIO is sufficient.
+Docker's default capability set provides neither.

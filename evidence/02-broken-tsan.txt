@@ -1,0 +1,15 @@
+$ timeout 30 c02-broken
+
+starting two transfers in opposite directions...
+
+DEADLOCK -- no progress for 2 s. Wait-for graph:
+
+  transfer(alice, bob)   holds alice  waiting for bob
+  transfer(bob, alice)   holds bob    waiting for alice
+
+  cycle: alice -> bob -> alice
+
+Both threads take two locks. Neither takes them in the same order,
+because each takes them in the order its own arguments arrived in.
+
+[exit status: 1]

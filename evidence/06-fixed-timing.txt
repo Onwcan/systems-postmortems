@@ -1,0 +1,11 @@
+mutex:              pthread PTHREAD_PRIO_INHERIT (enabled)
+RLIMIT_RTPRIO:      soft 99, hard 99
+pinned to one CPU:  yes
+critical section:   5382102 iterations = 4294 us measured (target 5000 us)
+SCHED_FIFO granted: 3 of 3 threads
+worst lock wait:    5216 us
+
+
+BOUNDED by one critical section. The medium-priority hog no longer
+delays the control loop: the holder is boosted to the waiter's
+priority, so it preempts the hog and finishes.

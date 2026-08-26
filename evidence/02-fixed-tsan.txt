@@ -1,0 +1,6 @@
+$ timeout 30 c02-fixed
+
+starting two transfers in opposite directions...
+completed -- alice=1000 bob=1000
+
+[exit status: 0]

@@ -1,0 +1,8 @@
+$ c05-broken
+
+counters are 8 bytes apart
+1 thread :    242.7 M increments/s
+4 threads:    110.7 M increments/s  (0.46x)
+FOUR THREADS BARELY BEAT ONE -- this is false sharing
+
+[exit status: 0]

@@ -1,0 +1,10 @@
+$ c04-broken-O2
+
+buffer size: 1024 bytes
+fits(0, 16)                   -> yes
+fits(2000000000, 2000000000) -> yes  <-- ACCEPTED, this is the bug
+
+the check approved a write running ~2 GB past a 1 KB buffer.
+compile this same file at -O0 and it answers no.
+
+[exit status: 1]

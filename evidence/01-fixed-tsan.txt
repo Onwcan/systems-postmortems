@@ -1,0 +1,5 @@
+$ c01-fixed
+
+expected 800000, counted 800000 -- exact
+
+[exit status: 0]

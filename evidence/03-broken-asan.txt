@@ -1,0 +1,69 @@
+$ c03-broken
+
+=================================================================
+==651==ERROR: AddressSanitizer: heap-use-after-free on address 0x774b46de0030 at pc 0x6096536a7435 bp 0x7fff208d9670 sp 0x7fff208d9660
+READ of size 8 at 0x774b46de0030 thread T0
+    #0 0x6096536a7434 in main cases/03-dangling-reference/broken.cpp:39
+    #1 0x7b0b47a2a600  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 240c8909736b31f963346aca80667fd00c551e32)
+    #2 0x7b0b47a2a717 in __libc_start_main (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 240c8909736b31f963346aca80667fd00c551e32)
+    #3 0x6096536a4304 in _start (c03-broken+0x1304) (BuildId: c2500227d50d54190e7322f2c8ae2f6a4823d559)
+
+0x774b46de0030 is located 32 bytes inside of 40-byte region [0x774b46de0010,0x774b46de0038)
+freed by thread T0 here:
+    #0 0x7b0b4832d89f in operator delete(void*, unsigned long) ../../../../src/libsanitizer/asan/asan_new_delete.cpp:190
+    #1 0x6096536a72ac in deallocate /usr/include/c++/15/bits/new_allocator.h:172
+    #2 0x6096536a72ac in deallocate /usr/include/c++/15/bits/allocator.h:215
+    #3 0x6096536a72ac in deallocate /usr/include/c++/15/bits/alloc_traits.h:649
+    #4 0x6096536a72ac in _M_deallocate /usr/include/c++/15/bits/stl_vector.h:396
+    #5 0x6096536a72ac in ~_Guard_alloc /usr/include/c++/15/bits/stl_vector.h:1883
+    #6 0x6096536a72ac in _M_realloc_append<(anonymous namespace)::Sensor> /usr/include/c++/15/bits/vector.tcc:640
+    #7 0x6096536a72ac in emplace_back<(anonymous namespace)::Sensor> /usr/include/c++/15/bits/vector.tcc:123
+    #8 0x6096536a72ac in push_back /usr/include/c++/15/bits/stl_vector.h:1434
+    #9 0x6096536a72ac in main cases/03-dangling-reference/broken.cpp:36
+
+previously allocated by thread T0 here:
+    #0 0x7b0b4832c73f in operator new(unsigned long) ../../../../src/libsanitizer/asan/asan_new_delete.cpp:109
+    #1 0x6096536a5057 in allocate /usr/include/c++/15/bits/new_allocator.h:151
+    #2 0x6096536a5057 in allocate /usr/include/c++/15/bits/allocator.h:203
+    #3 0x6096536a5057 in allocate /usr/include/c++/15/bits/alloc_traits.h:614
+    #4 0x6096536a5057 in _M_allocate /usr/include/c++/15/bits/stl_vector.h:387
+    #5 0x6096536a5057 in _M_realloc_append<(anonymous namespace)::Sensor> /usr/include/c++/15/bits/vector.tcc:572
+    #6 0x6096536a5057 in emplace_back<(anonymous namespace)::Sensor> /usr/include/c++/15/bits/vector.tcc:123
+    #7 0x6096536a5057 in push_back /usr/include/c++/15/bits/stl_vector.h:1434
+    #8 0x6096536a5057 in main cases/03-dangling-reference/broken.cpp:25
+
+SUMMARY: AddressSanitizer: heap-use-after-free cases/03-dangling-reference/broken.cpp:39 in main
+Shadow bytes around the buggy address:
+  0x774b46ddfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x774b46ddfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x774b46ddfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x774b46ddff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x774b46ddff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x774b46de0000: fa fa fd fd fd fd[fd]fa fa fa fa fa fa fa fa fa
+  0x774b46de0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x774b46de0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x774b46de0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x774b46de0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x774b46de0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==651==ABORTING
+
+[exit status: 1]

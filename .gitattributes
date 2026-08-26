@@ -1,0 +1,6 @@
+# Shell scripts and evidence must keep LF endings regardless of platform.
+# A CRLF in a script makes the shebang line unparseable: bash fails with
+# "syntax error near unexpected token $'{\r'" and exits 2.
+* text=auto eol=lf
+*.png binary
+*.jpg binary

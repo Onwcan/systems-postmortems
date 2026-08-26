@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Builds every case with the flags its demonstration requires, runs it, and
+  # checks each expected finding. This is the same script contributors run
+  # locally -- CI does not have its own copy of the build commands, so the two
+  # cannot drift.
+  #
+  # Case 06 needs SCHED_FIFO, which GitHub runners do not grant: RLIMIT_RTPRIO
+  # is 0. The script reports SKIP for it rather than failing, and rather than
+  # overwriting the committed container-produced evidence with an inconclusive
+  # local run. That evidence comes from scripts/run-case-06-container.sh, run on
+  # a machine where the capability is available.
+  cases:
+    name: Reproduce and diagnose
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: sudo apt-get update && sudo apt-get install -y g++-14 binutils
+
+      - name: Run every case
+        env:
+          CXX: g++-14
+        run: bash scripts/run-all.sh "${RUNNER_TEMP}/evidence"
+
+      # The tool output is the substance of this repository. Keeping the CI run's
+      # copy makes it possible to compare a fresh run against what is committed,
+      # on a different machine and a different compiler version.
+      - name: Upload evidence from this run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}/evidence/
+          if-no-files-found: error
+
+  # Both variants of every case must compile clean. A demonstration of a bug is
+  # not an excuse for an unrelated warning, and a reader who sees warning noise
+  # cannot tell which parts are deliberate.
+  #
+  # Not -Werror on the cases themselves: case 04's whole subject is a construct
+  # the compiler is entitled to reason about, and pinning exact diagnostics
+  # across compiler versions makes the job fail for reasons that have nothing to
+  # do with the code.
+  warnings:
+    name: Compiles clean
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: sudo apt-get update && sudo apt-get install -y g++-14
+
+      - name: Build every variant with -Wall -Wextra
+        run: |
+          status=0
+          for file in cases/*/*.cpp; do
+            echo "--- $file"
+            if ! g++-14 -std=c++20 -O2 -Wall -Wextra -c "$file" -o /dev/null; then
+              status=1
+            fi
+          done
+          exit "$status"
+
+  format:
+    name: clang-format
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format-18
+
+      # The same script contributors run. See scripts/format.sh for why it skips
+      # missing directories rather than letting `find` exit 1 on them.
+      - name: Check formatting
+        env:
+          CLANG_FORMAT: clang-format-18
+        run: bash scripts/format.sh --check

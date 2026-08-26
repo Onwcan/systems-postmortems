@@ -1,0 +1,11 @@
+$ c04-fixed-O2
+
+buffer size: 1024 bytes
+fits(0, 16)                   -> yes
+fits(2000000000, 2000000000) -> no
+fits(1024, 0)                 -> yes
+fits(1023, 1)                 -> yes
+fits(1023, 2)                 -> no
+fits(1024, 1)                 -> no
+
+[exit status: 0]

@@ -1,0 +1,39 @@
+The overflow guard 'if (end < offset) return false;' as compiled.
+
+=== -O0: the comparison is present ===
+0000000000001169 <_ZN12_GLOBAL__N_1L4fitsEii>:
+    1169:	endbr64
+    116d:	push   %rbp
+    116e:	mov    %rsp,%rbp
+    1171:	mov    %edi,-0x14(%rbp)
+    1174:	mov    %esi,-0x18(%rbp)
+    1177:	cmpl   $0x0,-0x14(%rbp)
+    117b:	js     1183 <_ZN12_GLOBAL__N_1L4fitsEii+0x1a>
+    117d:	cmpl   $0x0,-0x18(%rbp)
+    1181:	jns    118a <_ZN12_GLOBAL__N_1L4fitsEii+0x21>
+    1183:	mov    $0x0,%eax
+    1188:	jmp    11ae <_ZN12_GLOBAL__N_1L4fitsEii+0x45>
+    118a:	mov    -0x14(%rbp),%edx
+    118d:	mov    -0x18(%rbp),%eax
+    1190:	add    %edx,%eax
+    1192:	mov    %eax,-0x4(%rbp)
+    1195:	mov    -0x4(%rbp),%eax
+    1198:	cmp    -0x14(%rbp),%eax
+    119b:	jge    11a4 <_ZN12_GLOBAL__N_1L4fitsEii+0x3b>
+    119d:	mov    $0x0,%eax
+    11a2:	jmp    11ae <_ZN12_GLOBAL__N_1L4fitsEii+0x45>
+    11a4:	cmpl   $0x400,-0x4(%rbp)
+    11ab:	setle  %al
+    11ae:	pop    %rbp
+    11af:	ret
+
+=== -O2: the comparison is gone ===
+0000000000001220 <_ZN12_GLOBAL__N_1L4fitsEii>:
+    1220:	mov    %edi,%edx
+    1222:	xor    %eax,%eax
+    1224:	or     %esi,%edx
+    1226:	js     1233 <_ZN12_GLOBAL__N_1L4fitsEii+0x13>
+    1228:	add    %esi,%edi
+    122a:	cmp    $0x400,%edi
+    1230:	setle  %al
+    1233:	ret

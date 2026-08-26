@@ -1,0 +1,8 @@
+$ c05-fixed
+
+counters are 64 bytes apart
+1 thread :    239.7 M increments/s
+4 threads:    940.5 M increments/s  (3.92x)
+scales
+
+[exit status: 0]

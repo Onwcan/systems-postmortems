@@ -1,0 +1,5 @@
+$ c03-fixed
+
+first sensor: temperature = 21.5
+
+[exit status: 0]

@@ -1,0 +1,11 @@
+mutex:              std::mutex (no priority inheritance)
+RLIMIT_RTPRIO:      soft 99, hard 99
+pinned to one CPU:  yes
+critical section:   5284763 iterations = 4215 us measured (target 5000 us)
+SCHED_FIFO granted: 3 of 3 threads
+worst lock wait:    15246 us
+
+
+WAITED FAR LONGER THAN THE CRITICAL SECTION -- priority inversion.
+The holder was ready but not running: a medium-priority thread that
+never touches this lock was using the CPU instead.
