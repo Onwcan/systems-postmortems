@@ -16,6 +16,10 @@ jobs:
   # locally -- CI does not have its own copy of the build commands, so the two
   # cannot drift.
   #
+  # Case 05 compares padded and unpadded throughput at the same thread count.
+  # Holding the thread count constant avoids treating four-core scale-up as a
+  # property of the cache-line fix.
+  #
   # Case 06 needs SCHED_FIFO, which GitHub runners do not grant: RLIMIT_RTPRIO
   # is 0. The script reports SKIP for it rather than failing, and rather than
   # overwriting the committed container-produced evidence with an inconclusive

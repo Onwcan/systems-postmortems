@@ -15,9 +15,10 @@ scripts/run-all.sh
 ```
 
 Builds every case with the flags its demonstration requires, runs it, captures
-the output, and checks each expected finding. **14 checks, all passing**; case
-06 reports SKIP on hosts that cannot grant real-time scheduling and says how to
-run it where they can.
+the output, and checks each expected finding. **14 checks, all passing**. Case
+05 compares padded and unpadded throughput at the same thread count instead of
+assuming the host can supply four cores; case 06 reports SKIP on hosts that
+cannot grant real-time scheduling and says how to run it where they can.
 
 ---
 
@@ -29,7 +30,7 @@ run it where they can.
 | [02](cases/02-lock-order-inversion/) | Deadlock from swapped lock order | A hand-built watchdog | `cycle: alice -> bob -> alice` |
 | [03](cases/03-dangling-reference/) | Reference held across `push_back` | AddressSanitizer | `heap-use-after-free`, freed inside `new_allocator.h` |
 | [04](cases/04-overflow-removes-check/) | Optimiser deletes an overflow guard | UBSan + disassembly | Two comparisons in the source, **one** in the object code |
-| [05](cases/05-false-sharing/) | Counters sharing a cache line | Measurement | **0.45×** with four threads → **3.68×** padded |
+| [05](cases/05-false-sharing/) | Counters sharing a cache line | Measurement | **0.46×** with four threads → **3.92×** padded |
 | [06](cases/06-priority-inversion/) | Low-priority thread blocks a control loop | Measurement, in a container | **15246 µs** → **5216 µs** |
 
 No two are found by the same tool. That is the selection criterion — the set is
@@ -126,4 +127,4 @@ real-time latency measurement, and knowing when a measurement is worthless.
 
 ## Licence
 
-Apache-2.0. 
+Apache-2.0.

@@ -95,6 +95,21 @@ absent() {
   fi
 }
 
+# four_thread_throughput <evidence-file>
+#
+# The case 05 programs deliberately keep their output human-readable. Extract
+# the four-thread result here so the regression test can compare like with like:
+# padded four-thread throughput against unpadded four-thread throughput. A
+# hosted runner may only provide one CPU's worth of effective scheduling, so
+# comparing either result with its one-thread run is not a portable CI gate.
+four_thread_throughput() {
+  awk '$1 == "4" && $2 == "threads:" &&
+       $3 ~ /^[0-9]+([.][0-9]+)?$/ && $4 == "M" && $5 == "increments/s" {
+         print $3
+         exit
+       }' "$OUT/$1"
+}
+
 # ---------------------------------------------------------------------------
 banner "01  Dropped counters -- a data race in a metrics counter"
 compile 01-dropped-counters broken c01-broken -O2 -g -fsanitize=thread
@@ -206,8 +221,28 @@ compile 05-false-sharing fixed c05-fixed -O2
 capture "05-broken-timing.txt" "$BUILD/c05-broken"
 capture "05-fixed-timing.txt" "$BUILD/c05-fixed"
 
-present "the unpadded version fails to scale" "false sharing" 05-broken-timing.txt
-present "the padded version scales" "^scales" 05-fixed-timing.txt
+if grep -Fqx "counters are 8 bytes apart" "$OUT/05-broken-timing.txt" &&
+  grep -Fqx "FOUR THREADS BARELY BEAT ONE -- this is false sharing" \
+    "$OUT/05-broken-timing.txt"; then
+  record pass "the unpadded counters share a cache line and fail to scale"
+else
+  record fail "the unpadded counters share a cache line and fail to scale"
+fi
+
+broken_four="$(four_thread_throughput 05-broken-timing.txt)"
+fixed_four="$(four_thread_throughput 05-fixed-timing.txt)"
+
+if grep -Fqx "counters are 64 bytes apart" "$OUT/05-fixed-timing.txt" &&
+  awk -v broken="$broken_four" -v fixed="$fixed_four" \
+    'BEGIN { exit !(broken > 0 && fixed >= broken * 2.0) }'; then
+  improvement="$(awk -v broken="$broken_four" -v fixed="$fixed_four" \
+    'BEGIN { printf "%.2f", fixed / broken }')"
+  record pass "padding separates the counters and improves four-thread throughput ${improvement}x"
+else
+  comparison="broken=${broken_four:-missing}, fixed=${fixed_four:-missing} M increments/s"
+  record fail \
+    "padding separates the counters and improves four-thread throughput by at least 2x ($comparison)"
+fi
 
 # ---------------------------------------------------------------------------
 banner "06  Priority inversion -- the lowest-priority thread blocks the highest"

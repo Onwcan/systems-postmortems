@@ -24,8 +24,8 @@ result — the program is right, and slow. Only measurement shows it.
 
 ```
 counters are 8 bytes apart
-1 thread :    255.8 M increments/s
-4 threads:    114.7 M increments/s  (0.45x)
+1 thread :    242.7 M increments/s
+4 threads:    110.7 M increments/s  (0.46x)
 FOUR THREADS BARELY BEAT ONE -- this is false sharing
 ```
 
@@ -33,13 +33,13 @@ FOUR THREADS BARELY BEAT ONE -- this is false sharing
 
 ```
 counters are 64 bytes apart
-1 thread :    264.0 M increments/s
-4 threads:    972.1 M increments/s  (3.68x)
+1 thread :    239.7 M increments/s
+4 threads:    940.5 M increments/s  (3.92x)
 scales
 ```
 
-**0.45× becomes 3.68×.** Single-threaded throughput is unchanged (255.8 vs
-264.0 M/s), which matters: it shows the fix did not make the work itself faster,
+**0.46× becomes 3.92×.** Single-threaded throughput is unchanged (242.7 vs
+239.7 M/s), which matters: it shows the fix did not make the work itself faster,
 it removed an interaction that only exists between threads.
 
 The right tool for this would be `perf stat -e cache-misses,LLC-load-misses`, or
@@ -94,13 +94,18 @@ everything.**
 
 ## Regression test
 
-`scripts/run-all.sh` requires the unpadded variant to report failure to scale
-and the padded variant to report scaling. Both programs compute their own
-verdict from measured throughput rather than asserting a fixed number, because
-the absolute figures depend on the machine — core count, cache topology, and
-whether the host is virtualised.
+`scripts/run-all.sh` checks that the unpadded counters are 8 bytes apart and
+show the failure-to-scale symptom, then checks that the padded counters are 64
+bytes apart and deliver at least twice the unpadded four-thread throughput. The
+comparison holds the thread count constant, so the changed memory layout is the
+variable under test.
 
-The *ratio* is the durable claim; the megahertz are not.
+The script deliberately does not require the padded four-thread run to exceed
+its own one-thread throughput by a fixed ratio. A hosted runner with roughly
+one CPU's worth of effective parallelism cannot demonstrate four-core scaling
+even when the padding is correct. Absolute throughput and one-to-four-thread
+scale-up describe the machine; the layout and the paired
+padded-versus-unpadded result are the regression claim.
 
 ## What made it hard
 

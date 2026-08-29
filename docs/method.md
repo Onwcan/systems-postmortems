@@ -100,11 +100,16 @@ In case 06, `broken.cpp` and `fixed.cpp` differ only in the mutex type. The
 workload, the duty cycles, the calibration and the thread priorities are
 identical. If the workload differed, the comparison would not be a comparison.
 
-### Report ratios, not absolute numbers, where the machine decides
+### Compare like with like where the machine decides
 
-Case 05 asserts that four threads scale, not that they reach 972 M
-increments/second. The absolute figure depends on core count, cache topology,
-and whether the host is virtualised. The ratio survives; the megahertz do not.
+Case 05 records both one-thread and four-thread throughput, but its regression
+gate compares the padded and unpadded four-thread runs. It also checks the
+counter spacing directly. Requiring the padded run to exceed its one-thread
+result by a fixed ratio would test whether the host supplied four CPUs, not
+whether the cache-line fix worked; a CPU-constrained hosted runner can report
+about 1× even for the correct version. The absolute throughput and one-to-four
+scale-up describe that run. Holding the thread count constant isolates the
+layout change.
 
 ---
 
